@@ -60,5 +60,68 @@ Spring Boot 환경에서 발생하는 로그를 분석하여 실시간으로 코
 }
 ```
 
+
 ---
-Designed for **Advanced Agentic Coding** environments.
+
+## 🐳 Docker & Logging Pipeline
+
+이 프로젝트는 **Spring Boot -> Grafana Alloy -> Loki -> Grafana**로 이어지는 완전한 로깅 파이프라인을 Docker Compose로 제공합니다.
+
+### 아키텍처
+1.  **Spring Boot App**: `Loki4jAppender`를 사용하여 로그를 Alloy로 직접 전송.
+2.  **Grafana Alloy**: 로그 수집기. Spring App으로부터 로그를 받아 Loki로 전달.
+3.  **Loki**: 로그 집계 및 저장소.
+4.  **Grafana**: 로그 시각화 및 대시보드.
+
+### 실행 방법
+Docker Desktop이 실행 중인지 확인 후 다음 명령어를 실행합니다.
+
+```bash
+docker-compose up -d --build
+```
+
+### 서비스 접속
+-   **Spring App**: [http://localhost:8080](http://localhost:8080)
+-   **Grafana**: [http://localhost:3000](http://localhost:3000) (계정: `admin` / `admin`)
+
+## 🔍 Grafana LogQL 가이드 (Log Query)
+
+Grafana의 **Explore** 메뉴에서 **Loki** 데이터 소스를 선택하고 다음 쿼리를 활용하세요.
+
+### 1. 전체 로그 조회
+```logql
+{app="app-log"}
+```
+
+### 2. 에러 로그만 필터링 (추천)
+자동 수정이 필요한 시스템 에러만 조회합니다.
+```logql
+{app="app-log"} | json | is_fix_required="true"
+```
+
+### 3. 특정 Trace ID 추적
+특정 요청의 흐름을 추적할 때 유용합니다.
+```logql
+{app="app-log"} | json | trace_id="YOUR_TRACE_ID"
+```
+
+### 4. 키워드 검색
+특정 예외 클래스나 메시지를 포함하는 로그를 검색합니다.
+```logql
+{app="app-log"} |= "NullPointerException"
+```
+
+### 🚨 문제 해결: Grafana에서 로그가 안 보일 때
+
+만약 Grafana에서 쿼리를 실행했는데 `No logs found` 메시지가 나온다면 다음 단계를 확인하세요.
+
+1.  **Time Range 확인**: 우측 상단 시간 설정이 너무 짧게 되어있지 않은지 확인합니다. Docker 컨테이너 시간차 등을 고려하여 **"Last 1 hour"**이상으로 설정하는 것을 권장합니다.
+2.  **데이터 소스 확인**: Alloy가 Loki로 데이터를 정상적으로 보내는지 확인하려면 로컬에서 다음 명령어로 직접 Loki API를 찔러볼 수 있습니다.
+    ```bash
+    # 최근 로그 10개 조회
+    curl -G "http://localhost:3100/loki/api/v1/query_range" \
+      --data-urlencode 'query={app="app-log"}' \
+      --data-urlencode 'limit=10'
+    ```
+    데이터가 리턴된다면 Loki 저장소에는 정상적으로 쌓이고 있는 것입니다.
+

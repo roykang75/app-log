@@ -16,7 +16,37 @@
         </encoder>
     </appender>
 
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <!-- Send to Alloy which is acting as a Loki receiver -->
+            <url>http://alloy:3100/loki/api/v1/push</url>
+        </http>
+        <batchTimeoutMs>1000</batchTimeoutMs>
+        <format>
+            <label>
+                <pattern>app=app-log,host=${HOSTNAME}</pattern>
+            </label>
+            <message>
+                <pattern>
+{
+  "timestamp": "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}",
+  "level": "%level",
+  "logger": "%logger{36}",
+  "thread": "%thread",
+  "message": "%message",
+  "trace_id": "%mdc{trace_id}",
+  "user_id": "%mdc{user_id}",
+  "exception_category": "%mdc{exception_category}",
+  "is_fix_required": "%mdc{is_fix_required}",
+  "stack_trace": "%ex"
+}
+                </pattern>
+            </message>
+        </format>
+    </appender>
+
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
+        <appender-ref ref="LOKI" />
     </root>
 </configuration>
