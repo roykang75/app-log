@@ -43,3 +43,9 @@ services:
       - "3000:3000"
     depends_on:
       - loki
+
+  action-service:
+    build: ./action-service
+    container_name: action-service
+    ports:
+      - "5001:5000"

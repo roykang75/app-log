@@ -1,0 +1,16 @@
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: Action Service Webhook
+    receivers:
+      - uid: action_service_webhook
+        type: webhook
+        settings:
+          url: http://action-service:5000/api/v1/fix
+          httpMethod: POST
+
+policies:
+  - orgId: 1
+    receiver: Action Service Webhook
+    group_by: ['alertname']
