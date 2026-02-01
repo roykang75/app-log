@@ -60,6 +60,18 @@ Spring Boot 환경에서 발생하는 로그를 분석하여 실시간으로 코
 }
 ```
 
+### [BUSINESS LOG] - 비즈니스 에러 발생 케이스
+```json
+{
+  "timestamp" : "2026-01-30T19:40:48.123456+09:00",
+  "level" : "WARN",
+  "message" : "[BUSINESS] Code: USER_DUPLICATE, Message: User already exists: test_user",
+  "trace_id" : "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+  "exception_category" : "BUSINESS",
+  "user_id" : "user_123"
+}
+```
+
 
 ---
 
